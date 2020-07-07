@@ -1,7 +1,7 @@
 <?PHP
 $tables = [
     ['text' => 'Текст красного цвета',
-        'cells' => '1,2,4,5',
+        'cells' => '1,4,7',
         'align' => 'center',
         'valign' => 'center',
         'color' => 'FF0000',
@@ -14,7 +14,7 @@ $tables = [
         'bgcolor' => 'FFFFFF']
 ];
 
-function table_gen(array $tables, $rows, $cols, $border = 1)
+function table_gen(array $tables, int $matrix, int $border = 1)
 {
     foreach ($tables as &$table) {
         $rowOrCol = true;
@@ -48,59 +48,64 @@ function table_gen(array $tables, $rows, $cols, $border = 1)
             }
         }
     }
+    $finTable = [];
+    $continue = [];
+    $tablesSize = $matrix * $matrix;
 
+    for ($i = 1; $i <= $tablesSize; $i++){
+        if (!in_array($i, $continue)){
+            foreach ($tables as $tabl){
+                if (in_array($i, $tabl['cells'])){
+                    $finTable[$i]['cells'] = $i;
+                    $finTable[$i]['align'] = $tabl['align'];
+                    $finTable[$i]['valign'] = $tabl['valign'];
+                    $finTable[$i]['color'] = $tabl['color'];
+                    $finTable[$i]['bgcolor'] = $tabl['bgcolor'];
+                    $finTable[$i]['text'] = $tabl['text'];
+                    $finTable[$i]['rowspan'] = $tabl['rowspan'];
+                    $finTable[$i]['colspan'] = $tabl['colspan'];
+                    $passElement = count($tabl['cells']) - 1;
+                    for ($p = 1; $p <= $passElement; $p++){
+                        $finTable[$tabl['cells'][$p]]['cells'] = 'pass';
+                        $continue[] = $tabl['cells'][$p];
+                    }
+                }
+                else{
+                    $finTable[$i]['cells'] = $i;
+                }
+            }
+        }else{
+            $finTable[$i]['cells'] = 'pass';
+        }
+
+    }
+$cell = 1;
+print_r($tables);
+print_r($finTable);
     $www = "<table border=" . $border . ">";
 
-    $tableSetting = 0;
-    for ($col = 1; $col <= $cols; $col++) {
-        $countRow = 0;
+    for ($i = 0; $i < $matrix; $i++){
         $www .= '<tr>';
-        for ($row = 1; $row <= $rows; $row++) {
-            if (isset($tables[$tableSetting])) {
-                //
-                if (isset($tables[$tableSetting]['rowspan']) && isset($tables[$tableSetting]['colspan'])) {
-                    $www .= '<td colspan="2" rowspan="2" 
-                    align="'.$tables[$tableSetting]['align'].'"
-                    valign="'.$tables[$tableSetting]['valign'].'"
-                    bgcolor="'.$tables[$tableSetting]['bgcolor'].'"
-                    style="color:'.$tables[$tableSetting]['color'].'">' .$tables[$tableSetting]['text']. '</td>';
-                    $countRow = $rows - $tables[$tableSetting]['colspan'];
-                    $row = $tables[$tableSetting]['colspan'];
-                    $countCol = $cols - $tables[$tableSetting]['rowspan'];
-                    for ($i = 0; $i < $countRow; $i++) {
-                        $www .= '<td></td></tr>';
-                        $row++;
-                    }
-                    for ($i = 0; $i < $countCol; $i++) {
-                        $www .= '<tr><td></td></tr>';
-                        $col++;
-                    }
+        for ($k = 0; $k < $matrix; $k++, $cell++){
+            if ($finTable[$cell]['cells'] !== 'pass'){
+                if (count($finTable[$cell]) !== 1){
+                    $www .= '<td colspan="'.$finTable[$cell]['colspan'].'" rowspan="'.$finTable[$cell]['rowspan'].'" 
+                    align="'.$finTable[$cell]['align'].'"
+                    valign="'.$finTable[$cell]['valign'].'"
+                    bgcolor="'.$finTable[$cell]['bgcolor'].'"
+                    style="color:'.$finTable[$cell]['color'].'">' .$finTable[$cell]['text']. '</td>';
+                }else{
+                    $www .= '<td></td>';
                 }
-                //
-                if (isset($tables[$tableSetting]['colspan']) && empty($tables[$tableSetting]['rowspan'])) {
-                    $countRow = $rows - $tables[$tableSetting]['colspan'];
-                    for ($i = 0; $i < $countRow; $i++) {
-                        $www .= '<td></td>';
-                        $row = $tables[$tableSetting]['colspan'] + 1;
-                    }
-                    $www .= '<td  colspan="2" 
-                    align="'.$tables[$tableSetting]['align'].'"
-                    valign="'.$tables[$tableSetting]['valign'].'"
-                    bgcolor="'.$tables[$tableSetting]['bgcolor'].'"
-                    style="color:'.$tables[$tableSetting]['color'].'" >' .$tables[$tableSetting]['text']. '</td></tr>';
-                }
-            }else{
-                $www .= '<td></td>';
             }
         }
-        $tableSetting++;
         $www .= '</tr>';
     }
     $www .= '</table>';
     echo $www;
 }
 
-table_gen($tables, 3, 3);
+table_gen($tables, 3);
 
 ?>
 
