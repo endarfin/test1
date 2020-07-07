@@ -1,56 +1,83 @@
 <?PHP
 $tables = [
     ['text' => 'Текст красного цвета',
-        'cells' => '1,4,7',
+        'cells' => '1,2,4,5',
         'align' => 'center',
         'valign' => 'center',
         'color' => 'FF0000',
         'bgcolor' => '0000FF'],
-    ['text' => 'Текст зеленого цвета',
+    ['text' => 'Текст красного цвета',
         'cells' => '8,9',
-        'align' => 'right',
-        'valign' => 'bottom',
-        'color' => '00FF00',
-        'bgcolor' => 'FFFFFF']
+        'align' => 'center',
+        'valign' => 'center',
+        'color' => 'FF0000',
+        'bgcolor' => '0000FF'],
+
 ];
 
 function table_gen(array $tables, int $matrix, int $border = 1)
 {
+    $tablesSize = $matrix * $matrix;
+
     foreach ($tables as &$table) {
-        $rowOrCol = true;
         if (isset($table['cells']) && $table['cells'] !== '') {
-
             $table['cells'] = explode(',', $table['cells']);
-            $lastEl = $table['cells'][count($table['cells']) - 1];
-            $first = $table['cells'][0];
-            $count = 0;
+            $count = count($table['cells']);
+            $table['rowspan'] = 1;
+            $table['colspan'] = 1;
+            for ($i = 0; $i < $count - 1; $i++){
 
-            for ($i = $first; $i <= $lastEl; $i++) {
-
-                if ($table['cells'][$count] == $i) {
-
-                    if ($rowOrCol) {
-
+                if ($count % 2 == 0){
+                    if (($table['cells'][$i + 1] - $table['cells'][$i]) == 1){
                         $table['colspan'] += 1;
-                        $count++;
-
-                    } else {
-
+                    }else{
                         $table['rowspan'] += 1;
-                        $count++;
 
                     }
-                } else {
-
-                    $rowOrCol = false;
-
+                }
+                if ($count % 3 == 0){
+                    if (($table['cells'][$i + 1] - $table['cells'][$i]) == 1){
+                        $table['colspan'] += 1;
+                    }else{
+                        $table['rowspan'] += 1;
+                    }
                 }
             }
         }
     }
+
+    //
+    $allCells = [];
+    foreach($tables as $cells){
+        $allCells = array_merge($allCells,$cells['cells']);
+        $count = count($cells['cells']) - 1;
+        if ($cells['cells'][0] % 7 == 0){
+            echo 'Некорректные входные данные 5';
+            return;
+        }
+        for ($i = 0; $i < $count; $i++){
+            if ($cells['cells'][$i + 1] < $cells['cells'][$i]){
+                echo 'Некорректные входные данные 1';
+                return;
+            }
+        }
+    }
+
+    if (!(count($allCells) == count(array_unique($allCells)))){
+        echo 'Некорректные входные данные 2';
+        return;
+    }
+
+    if (array_pop($allCells) > $tablesSize){
+        echo 'Некорректные входные данные 3';
+        return;
+    }
+
+
+
     $finTable = [];
     $continue = [];
-    $tablesSize = $matrix * $matrix;
+
 
     for ($i = 1; $i <= $tablesSize; $i++){
         if (!in_array($i, $continue)){
@@ -79,23 +106,23 @@ function table_gen(array $tables, int $matrix, int $border = 1)
         }
 
     }
+    print_r($finTable);
 $cell = 1;
-print_r($tables);
-print_r($finTable);
+
     $www = "<table border=" . $border . ">";
 
     for ($i = 0; $i < $matrix; $i++){
         $www .= '<tr>';
         for ($k = 0; $k < $matrix; $k++, $cell++){
-            if ($finTable[$cell]['cells'] !== 'pass'){
-                if (count($finTable[$cell]) !== 1){
+            if ($finTable[$cell]['cells'] != 'pass'){
+                if (count($finTable[$cell]) != 1){
                     $www .= '<td colspan="'.$finTable[$cell]['colspan'].'" rowspan="'.$finTable[$cell]['rowspan'].'" 
                     align="'.$finTable[$cell]['align'].'"
                     valign="'.$finTable[$cell]['valign'].'"
                     bgcolor="'.$finTable[$cell]['bgcolor'].'"
                     style="color:'.$finTable[$cell]['color'].'">' .$finTable[$cell]['text']. '</td>';
                 }else{
-                    $www .= '<td></td>';
+                    $www .= '<td>'.$cell.'</td>';
                 }
             }
         }
