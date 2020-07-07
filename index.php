@@ -1,47 +1,52 @@
 <?PHP
-$tables = [
-    ['text' => 'Текст красного цвета',
-        'cells' => '1,2,4,5',
-        'align' => 'center',
-        'valign' => 'center',
-        'color' => 'FF0000',
-        'bgcolor' => '0000FF'],
-    ['text' => 'Текст красного цвета',
-        'cells' => '8,9',
-        'align' => 'center',
-        'valign' => 'center',
-        'color' => 'FF0000',
-        'bgcolor' => '0000FF'],
-
-];
-
 function table_gen(array $tables, int $matrix, int $border = 1)
 {
     $tablesSize = $matrix * $matrix;
 
     foreach ($tables as &$table) {
+        $rowOrCol = true;
         if (isset($table['cells']) && $table['cells'] !== '') {
             $table['cells'] = explode(',', $table['cells']);
-            $count = count($table['cells']);
-            $table['rowspan'] = 1;
-            $table['colspan'] = 1;
-            for ($i = 0; $i < $count - 1; $i++){
-
-                if ($count % 2 == 0){
-                    if (($table['cells'][$i + 1] - $table['cells'][$i]) == 1){
+            $count = count($table['cells']) - 1;
+            for ($i = 0; $i < $count; $i++){
+                if ($table['cells'][$i + 1] == $table['cells'][$i] + 1 && $rowOrCol){
+                    if ($table['cells'][0] % $matrix == 0){
+                        echo 'Некорректные входные данные 5';
+                        return;
+                    }
+                    if (empty($table['colspan'])){
+                        $table['colspan'] = 2;
+                        continue;
+                    }else{
                         $table['colspan'] += 1;
+                        continue;
+                    }
+                }else{
+                    $rowOrCol = false;
+                }
+                if ($table['cells'][$i + 1] == $table['cells'][$i] + 1 && !$rowOrCol){
+                    if (empty($table['rowspan'])){
+                        $table['rowspan'] = 2;
+                        continue;
                     }else{
                         $table['rowspan'] += 1;
-
+                        continue;
                     }
                 }
-                if ($count % 3 == 0){
-                    if (($table['cells'][$i + 1] - $table['cells'][$i]) == 1){
-                        $table['colspan'] += 1;
+                if ($table['cells'][$i + 1] == $table['cells'][$i] + $matrix && !$rowOrCol){
+                    if (empty($table['rowspan'])){
+                        $table['rowspan'] = 2;
+                        continue;
                     }else{
                         $table['rowspan'] += 1;
+                        continue;
                     }
                 }
+                if ($table['cells'][$i + 1] !== $table['cells'][$i] + $matrix && !$rowOrCol && empty($table['colspan'])){
+                        echo 'Некорректные входные данные 5';
+                        return;
+                }
+
             }
         }
     }
@@ -51,10 +56,6 @@ function table_gen(array $tables, int $matrix, int $border = 1)
     foreach($tables as $cells){
         $allCells = array_merge($allCells,$cells['cells']);
         $count = count($cells['cells']) - 1;
-        if ($cells['cells'][0] % 7 == 0){
-            echo 'Некорректные входные данные 5';
-            return;
-        }
         for ($i = 0; $i < $count; $i++){
             if ($cells['cells'][$i + 1] < $cells['cells'][$i]){
                 echo 'Некорректные входные данные 1';
@@ -106,8 +107,7 @@ function table_gen(array $tables, int $matrix, int $border = 1)
         }
 
     }
-    print_r($finTable);
-$cell = 1;
+    $cell = 1;
 
     $www = "<table border=" . $border . ">";
 
@@ -132,7 +132,90 @@ $cell = 1;
     echo $www;
 }
 
+$tables = [
+    ['text' => 'Текст красного цвета',
+        'cells' => '1,2,4,5',
+        'align' => 'center',
+        'valign' => 'center',
+        'color' => 'FF0000',
+        'bgcolor' => '0000FF'],
+    ['text' => 'Текст зеленого цвета',
+        'cells' => '8,9',
+        'align' => 'right',
+        'valign' => 'bottom',
+        'color' => '00FF00',
+        'bgcolor' => 'FFFFFF']
+
+
+];
+
+$tables2 = [
+    ['text' => 'Текст красного цвета',
+        'cells' => '1,2,3',
+        'align' => 'center',
+        'valign' => 'center',
+        'color' => 'FF0000',
+        'bgcolor' => '0000FF'],
+    ['text' => 'Текст зеленого цвета',
+        'cells' => '8,9',
+        'align' => 'right',
+        'valign' => 'bottom',
+        'color' => '00FF00',
+        'bgcolor' => 'FFFFFF']
+
+];
+$tables3 = [
+    ['text' => 'Текст красного цвета',
+        'cells' => '1,4,7',
+        'align' => 'center',
+        'valign' => 'center',
+        'color' => 'FF0000',
+        'bgcolor' => '0000FF'],
+    ['text' => 'Текст зеленого цвета',
+        'cells' => '5,6,8,9',
+        'align' => 'right',
+        'valign' => 'bottom',
+        'color' => '00FF00',
+        'bgcolor' => 'FFFFFF']
+
+];
+$tables4 = [
+    ['text' => 'Текст красного цвета',
+        'cells' => '2,5,8',
+        'align' => 'center',
+        'valign' => 'center',
+        'color' => 'FF0000',
+        'bgcolor' => '0000FF'],
+    ['text' => 'Текст зеленого цвета',
+        'cells' => '6,9',
+        'align' => 'right',
+        'valign' => 'bottom',
+        'color' => '00FF00',
+        'bgcolor' => 'FFFFFF']
+
+];
+$tables5 = [
+    ['text' => 'Текст красного цвета',
+        'cells' => '1,2,3',
+        'align' => 'center',
+        'valign' => 'center',
+        'color' => 'FF0000',
+        'bgcolor' => '0000FF'],
+    ['text' => 'Текст зеленого цвета',
+        'cells' => '5,6,8,9',
+        'align' => 'right',
+        'valign' => 'bottom',
+        'color' => '00FF00',
+        'bgcolor' => 'FFFFFF']
+
+];
+
+table_gen($tables3, 3);
+table_gen($tables2, 3);
+table_gen($tables4, 3);
+table_gen($tables5, 3);
 table_gen($tables, 3);
+
 
 ?>
 
